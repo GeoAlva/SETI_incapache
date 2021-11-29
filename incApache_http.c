@@ -64,7 +64,15 @@ int get_new_UID(void)
      *** and reset UserTracker[retval] to 0.
      *** Be careful in order to avoid race conditions ***/
 /*** TO BE DONE 5.0 START ***/
+	if(pthread_mutex_lock(&cookie_mutex)!=0)
+		fail_errno("lock error in get_new_UID");
 
+	retval=(++CurUID)%MAX_COOKIES;  
+
+	UserTracker[retval]=0;
+
+	if(pthread_mutex_unock(&cookie_mutex)!=0)
+		fail_errno("lock error in get_new_UID");
 
 /*** TO BE DONE 5.0 END ***/
 
@@ -81,7 +89,13 @@ int keep_track_of_UID(int myUID)
     /*** Increment UserTracker[myUID] and return the computed value.
      *** Be careful in order to avoid race conditions ***/
 /*** TO BE DONE 5.0 START ***/
+	if(pthread_mutex_lock(&cookie_mutex)!=0)
+		fail_errno("lock error in get_new_UID");
 
+	newcount = ++UserTracker[myUID];
+
+	if(pthread_mutex_unock(&cookie_mutex)!=0)
+		fail_errno("lock error in get_new_UID");
 
 /*** TO BE DONE 5.0 END ***/
 
@@ -113,6 +127,9 @@ void send_response(int client_fd, int response_code, int cookie,
 	/*** Compute date of servicing current HTTP Request using a variant of gmtime() ***/
 /*** TO BE DONE 5.0 START ***/
 
+	if(gmtime_r(&now_t,&now_tm)==NULL)
+		fail_errno("gmtime error");
+
 
 /*** TO BE DONE 5.0 END ***/
 
@@ -143,6 +160,8 @@ void send_response(int client_fd, int response_code, int cookie,
 			/*** compute file_size and file_modification_time ***/
 /*** TO BE DONE 5.0 START ***/
 
+			file_size = stat_p->st_size;
+			file_modification_time = stat_p->st_mtime;
 
 /*** TO BE DONE 5.0 END ***/
 
@@ -162,6 +181,17 @@ void send_response(int client_fd, int response_code, int cookie,
 			/*** compute file_size, mime_type, and file_modification_time of HTML_404 ***/
 /*** TO BE DONE 5.0 START ***/
 
+			mime_type = get_mime_type(HTML_404);
+			if (stat_p == NULL) {
+				stat_p = &stat_buffer;
+				if (stat(HTML_404, stat_p))
+					fail_errno("stat");
+			}
+			
+			file_size = stat_p->st_size;
+			file_modification_time = stat_p->st_mtime;
+
+			
 
 /*** TO BE DONE 5.0 END ***/
 
@@ -173,6 +203,16 @@ void send_response(int client_fd, int response_code, int cookie,
 
 			/*** compute file_size, mime_type, and file_modification_time of HTML_501 ***/
 /*** TO BE DONE 5.0 START ***/
+
+			mime_type = get_mime_type(HTML_501);
+			if (stat_p == NULL) {
+				stat_p = &stat_buffer;
+				if (stat(HTML_501, stat_p))
+					fail_errno("stat");
+			}
+			
+			file_size = stat_p->st_size;
+			file_modification_time = stat_p->st_mtime;
 
 
 /*** TO BE DONE 5.0 END ***/
@@ -186,6 +226,10 @@ void send_response(int client_fd, int response_code, int cookie,
             /*** set permanent cookie in order to identify this client ***/
 /*** TO BE DONE 5.0 START ***/
 
+		strcat(http_header,"\r\nSet-Cookie: Cookie = ");
+		strcat(http_header,(char)cookie);
+		strcat(http_header,COOKIE_EXPIRE);
+		strcat(http_header,"\r\n");
 
 /*** TO BE DONE 5.0 END ***/
 
@@ -202,6 +246,10 @@ void send_response(int client_fd, int response_code, int cookie,
 		     see gmtime and strftime ***/
 /*** TO BE DONE 5.0 START ***/
 
+	if(gmtime_r(&file_modification_time,&file_modification_tm)==NULL)
+		fail_errno("Error in gmtime_r");
+	
+	strftime(time_as_string, MAX_TIME_STR, "%a, %d %b %Y %T GMT", &file_modification_tm);
 
 /*** TO BE DONE 5.0 END ***/
 
@@ -233,6 +281,16 @@ void send_response(int client_fd, int response_code, int cookie,
 		/*** send fd file on client_fd, then close fd; see syscall sendfile  ***/
 /*** TO BE DONE 5.0 START ***/
 
+		int sent_bytes;
+		int offset = 0;
+		int remain_data = file_size;
+		/* Sending file data */
+		while (((sent_bytes = sendfile(client_fd, fd, &offset, file_size)) > 0) && (remain_data > 0))
+		{
+		fprintf(stdout, "1. Server sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", sent_bytes, offset, remain_data);
+		remain_data -= sent_bytes;
+		fprintf(stdout, "2. Server sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", sent_bytes, offset, remain_data);
+		}
 
 /*** TO BE DONE 5.0 END ***/
 

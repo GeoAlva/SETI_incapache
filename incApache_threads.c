@@ -141,7 +141,7 @@ void *client_connection_thread(void *vp)
 
 	/*** properly initialize the thread queue to_join ***/
 /*** TO BE DONE 5.1 START ***/
-
+	
 
 /*** TO BE DONE 5.1 END ***/
 
@@ -181,7 +181,8 @@ char *get_mime_type(char *filename)
 
 	/*** What is missing here to avoid race conditions ? ***/
 /*** TO BE DONE 5.0 START ***/
-
+	if(pthread_mutex_lock(&mime_mutex)!=0)
+		fail_errno("lock mutex error in get_mime_type");
 
 /*** TO BE DONE 5.0 END ***/
 
@@ -193,7 +194,8 @@ char *get_mime_type(char *filename)
 
 	/*** What is missing here to avoid race conditions ? ***/
 /*** TO BE DONE 5.0 START ***/
-
+	if(pthread_mutex_unlock(&mime_mutex)!=0)
+		fail_errno("lock mutex error in get_mime_type");
 
 /*** TO BE DONE 5.0 END ***/
 

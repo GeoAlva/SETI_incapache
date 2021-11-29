@@ -74,7 +74,10 @@ void run_webserver(const char *const port_as_str, char *www_root, const int *con
 	/*** perform chroot to www_root; then, create, bind, and listen to
 	 *** listen_fd, and eventually drop root privileges ***/
 /*** TO BE DONE 5.0 START ***/
-
+	if(chroot(www_root)==-1)
+		fail_errno("Error in chroot");
+	create_listening_socket(port_as_str);
+	drop_privileges();
 
 /*** TO BE DONE 5.0 END ***/
 
@@ -107,7 +110,8 @@ void run_webserver(const char *const port_as_str, char *www_root, const int *con
 
 		/*** create PTHREAD number i, running client_connection_thread() ***/
 /*** TO BE DONE 5.0 START ***/
-
+	if(pthread_create(&thread_ids[i],NULL,client_connection_thread,connection_no[i])!=0)
+		fail_errno("thread creation error");
 
 /*** TO BE DONE 5.0 END ***/
 

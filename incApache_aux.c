@@ -57,7 +57,8 @@ time_t my_timegm(struct tm *tm)
 
         /*** Guess what is missing here ... ***/
 /*** TO BE DONE 5.0 START ***/
-
+    if(pthread_mutex_lock(&my_timegm_mutex)!=0)
+        fail_errno("lock mutex error in mytimegm");
 
 /*** TO BE DONE 5.0 END ***/
 
@@ -72,6 +73,8 @@ time_t my_timegm(struct tm *tm)
 
         /*** Guess what is missing here ... ***/
 /*** TO BE DONE 5.0 START ***/
+    if(pthread_mutex_unlock(&my_timegm_mutex)!=0)
+        fail_errno("unlock mutex errore in mytimegm");
 
 
 /*** TO BE DONE 5.0 END ***/
