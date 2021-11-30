@@ -59,6 +59,7 @@ time_t my_timegm(struct tm *tm)
 /*** TO BE DONE 5.0 START ***/
     if(pthread_mutex_lock(&my_timegm_mutex)!=0)
         fail_errno("lock mutex error in mytimegm");
+    tz=getenv("TZ");
 
 /*** TO BE DONE 5.0 END ***/
 

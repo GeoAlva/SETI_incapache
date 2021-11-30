@@ -455,7 +455,7 @@ void manage_http_requests(int client_fd
 				 *** Use something like timegm() to convert from struct tm to time_t
 				 ***/
 /*** TO BE DONE 5.0 START ***/
-		if((int)timegm(&since_tm) > (int)stat_p->st_mtime)
+		if(my_timegm(&since_tm) > stat_p->st_mtime)
 			http_method = METHOD_NOT_CHANGED;
 
 /*** TO BE DONE 5.0 END ***/
