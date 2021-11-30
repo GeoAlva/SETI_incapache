@@ -51,7 +51,7 @@
 #include <assert.h>
 
 #define MAX_CONNECTIONS 8
-#define MAX_S 256
+#define MAX_COOKIES 256
 
 #ifdef INCaPACHE_5_1
 

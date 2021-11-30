@@ -71,7 +71,7 @@ int get_new_UID(void)
 
 	UserTracker[retval]=0;
 
-	if(pthread_mutex_unock(&cookie_mutex)!=0)
+	if(pthread_mutex_unlock(&cookie_mutex)!=0)
 		fail_errno("lock error in get_new_UID");
 
 /*** TO BE DONE 5.0 END ***/
@@ -94,7 +94,7 @@ int keep_track_of_UID(int myUID)
 
 	newcount = ++UserTracker[myUID];
 
-	if(pthread_mutex_unock(&cookie_mutex)!=0)
+	if(pthread_mutex_unlock(&cookie_mutex)!=0)
 		fail_errno("lock error in get_new_UID");
 
 /*** TO BE DONE 5.0 END ***/
@@ -226,10 +226,9 @@ void send_response(int client_fd, int response_code, int cookie,
             /*** set permanent cookie in order to identify this client ***/
 /*** TO BE DONE 5.0 START ***/
 
-		strcat(http_header,"\r\nSet-Cookie: Cookie = ");
-		strcat(http_header,(char)cookie);
-		strcat(http_header,COOKIE_EXPIRE);
-		strcat(http_header,"\r\n");
+
+		sprintf(http_header+strlen(http_header),"\r\nSet-Cookie: Cookie =%d %s \r\n", cookie, COOKIE_EXPIRE);
+
 
 /*** TO BE DONE 5.0 END ***/
 
@@ -282,14 +281,14 @@ void send_response(int client_fd, int response_code, int cookie,
 /*** TO BE DONE 5.0 START ***/
 
 		int sent_bytes;
-		int offset = 0;
+		off_t offset = 0;
 		int remain_data = file_size;
 		/* Sending file data */
 		while (((sent_bytes = sendfile(client_fd, fd, &offset, file_size)) > 0) && (remain_data > 0))
 		{
-		fprintf(stdout, "1. Server sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", sent_bytes, offset, remain_data);
+		fprintf(stdout, "1. Server sent %d bytes from file's data, offset is now : %ld and remaining data = %d\n", sent_bytes, offset, remain_data);
 		remain_data -= sent_bytes;
-		fprintf(stdout, "2. Server sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", sent_bytes, offset, remain_data);
+		fprintf(stdout, "2. Server sent %d bytes from file's data, offset is now : %ld and remaining data = %d\n", sent_bytes, offset, remain_data);
 		}
 
 /*** TO BE DONE 5.0 END ***/
@@ -348,6 +347,9 @@ void manage_http_requests(int client_fd
 		 *** filename, and protocol ***/
 /*** TO BE DONE 5.0 START ***/
 
+	method_str=strtok(http_request_line," ");
+	filename = strtok(NULL," ");
+	protocol = strtok(NULL,"\r");
 
 /*** TO BE DONE 5.0 END ***/
 
@@ -385,6 +387,8 @@ void manage_http_requests(int client_fd
                                 /*** parse the cookie in order to get the UserID and count the number of requests coming from this client ***/
 /*** TO BE DONE 5.0 START ***/
 
+					strtok_r(NULL,"=",&strtokr_save);
+					UIDcookie=atoi(strtokr_save);
 
 /*** TO BE DONE 5.0 END ***/
 
@@ -395,6 +399,10 @@ void manage_http_requests(int client_fd
 				 *** and possibly add METHOD_CONDITIONAL flag to http_method
 /*** TO BE DONE 5.0 START ***/
 
+				if(strcmp(http_option_line,"If-Modified-Since")==0){
+					http_method=METHOD_CONDITIONAL;
+					strptime(strtokr_save, "%a, %d %b %Y %T GMT", &since_tm);
+				}
 
 /*** TO BE DONE 5.0 END ***/
 
@@ -447,7 +455,8 @@ void manage_http_requests(int client_fd
 				 *** Use something like timegm() to convert from struct tm to time_t
 				 ***/
 /*** TO BE DONE 5.0 START ***/
-
+		if(timegm(&since_tm) >= stat_p->st_mtime)
+			http_method=METHOD_NOT_CHANGED;
 
 /*** TO BE DONE 5.0 END ***/
 
