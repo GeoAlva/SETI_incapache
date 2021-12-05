@@ -225,11 +225,7 @@ void send_response(int client_fd, int response_code, int cookie,
         if ( cookie >= 0 ) {
             /*** set permanent cookie in order to identify this client ***/
 /*** TO BE DONE 5.0 START ***/
-
-
 		sprintf(http_header+strlen(http_header),"\r\nSet-Cookie: Cookie =%d %s \r\n", cookie, COOKIE_EXPIRE);
-
-
 /*** TO BE DONE 5.0 END ***/
 
         }
@@ -398,14 +394,10 @@ void manage_http_requests(int client_fd
 				/*** parse option line, recognize "If-Modified-Since" option,
 				 *** and possibly add METHOD_CONDITIONAL flag to http_method
 /*** TO BE DONE 5.0 START ***/
-
 				if(strcmp(option_name,"If-Modified-Since")==0){
-					strptime(strtokr_save, "%a, %d %b %Y %T GMT", &since_tm);
+					strptime(strtokr_save, " %a, %d %b %Y %T GMT", &since_tm);
 					http_method=METHOD_CONDITIONAL;
 				}
-
-				
-
 /*** TO BE DONE 5.0 END ***/
 
 			    }
@@ -457,17 +449,13 @@ void manage_http_requests(int client_fd
 				 *** Use something like timegm() to convert from struct tm to time_t
 				 ***/
 /*** TO BE DONE 5.0 START ***/
-<<<<<<< HEAD
-		printf("Since_tm value = %f",(double)timegm(&since_tm));
-		printf("stat time = %f",(double)stat_p->st_mtime);
-		if((float)timegm(&since_tm)< (float)stat_p->st_mtime)
-=======
+		
 		if(timegm(&since_tm) > stat_p->st_mtime)
->>>>>>> 89059f54fdc8dd260c3cd23cbb6aa947f0924808
 			http_method = METHOD_NOT_CHANGED;
-		else{
+		else
 			http_method = METHOD_GET;
-		}
+
+			
 
 /*** TO BE DONE 5.0 END ***/
 
