@@ -457,9 +457,13 @@ void manage_http_requests(int client_fd
 				 *** Use something like timegm() to convert from struct tm to time_t
 				 ***/
 /*** TO BE DONE 5.0 START ***/
+<<<<<<< HEAD
 		printf("Since_tm value = %f",(double)timegm(&since_tm));
 		printf("stat time = %f",(double)stat_p->st_mtime);
 		if((float)timegm(&since_tm)< (float)stat_p->st_mtime)
+=======
+		if(timegm(&since_tm) > stat_p->st_mtime)
+>>>>>>> 89059f54fdc8dd260c3cd23cbb6aa947f0924808
 			http_method = METHOD_NOT_CHANGED;
 		else{
 			http_method = METHOD_GET;
