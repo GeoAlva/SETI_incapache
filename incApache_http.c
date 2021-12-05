@@ -399,10 +399,12 @@ void manage_http_requests(int client_fd
 				 *** and possibly add METHOD_CONDITIONAL flag to http_method
 /*** TO BE DONE 5.0 START ***/
 
-				if(strcmp(http_option_line,"If-Modified-Since")==0){
+				if(strcmp(option_name,"If-Modified-Since")==0){
 					strptime(strtokr_save, "%a, %d %b %Y %T GMT", &since_tm);
 					http_method=METHOD_CONDITIONAL;
 				}
+
+				
 
 /*** TO BE DONE 5.0 END ***/
 
@@ -455,8 +457,13 @@ void manage_http_requests(int client_fd
 				 *** Use something like timegm() to convert from struct tm to time_t
 				 ***/
 /*** TO BE DONE 5.0 START ***/
-		if(my_timegm(&since_tm) > stat_p->st_mtime)
+		printf("Since_tm value = %f",(double)timegm(&since_tm));
+		printf("stat time = %f",(double)stat_p->st_mtime);
+		if((float)timegm(&since_tm)< (float)stat_p->st_mtime)
 			http_method = METHOD_NOT_CHANGED;
+		else{
+			http_method = METHOD_GET;
+		}
 
 /*** TO BE DONE 5.0 END ***/
 
