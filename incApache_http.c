@@ -384,7 +384,7 @@ void manage_http_requests(int client_fd
 /*** TO BE DONE 5.0 START ***/
 
 					strtok_r(NULL,"=",&strtokr_save);
-					printf("WEEEEEEEEEEEE ::: %d", strtokr_save);
+					strtok_r(NULL,"\r",&strtokr_save);
 					UIDcookie=atoi(strtokr_save);
 
 /*** TO BE DONE 5.0 END ***/
